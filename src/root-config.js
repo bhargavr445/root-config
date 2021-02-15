@@ -1,18 +1,27 @@
 import { registerApplication, start } from "single-spa";
 
-const microfrontends = ["@mf-demo/navbar", "@mf-demo/employees"]
+const microfrontends = [{appName: "@mf-demo/employees", routeTo: '/employees'}]
 
 const contentRootElement = document.getElementById('mf-content');
-microfrontends.forEach(name => {
+
+registerApplication({
+  name: "@mf-demo/navbar",
+  app: () => System.import("@mf-demo/navbar"),
+  activeWhen: (location) => true
+});
+
+microfrontends.forEach(appInfo => {
   const microFrontendElement = document.createElement('div');
-  microFrontendElement.setAttribute('id', `single-spa-application:${name}`);
+  microFrontendElement.setAttribute('id', `single-spa-application:${appInfo.appName}`);
   contentRootElement.appendChild(microFrontendElement);
 
   registerApplication({
-    name,
-    app: () => System.import(name),
-    activeWhen: (location) => true
+    name: appInfo.appName,
+    app: () => System.import(appInfo.appName),
+    activeWhen: (location) => location.pathname === appInfo.routeTo
   });
 })
 
 start();
+
+
